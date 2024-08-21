@@ -7,7 +7,7 @@ const WINDOW_HEIGHT = MAP_NUM_ROWS * TILE_SIZE;
 
 const FOV_ANGLE = 60 * Math.PI / 180 ;
 
-const WALL_STRIP_WIDTH = 1;
+const WALL_STRIP_WIDTH = 2;
 
 const NUM_RAYS = WINDOW_WIDTH / WALL_STRIP_WIDTH;
 
@@ -338,6 +338,32 @@ function castAllRays()
     }   
 }
 
+function render3DProjectedWalls()
+{
+    // Loop through all rays and render 3D walls
+    for( var i = 0; i < NUM_RAYS; i++)
+    {
+        var ray = rays[i];
+
+        // Distance to the projection
+        var correctWallDisctance = ray.distance * Math.cos(ray.rayAngle - player.rotationAngle);
+        var distanceProjectionPlane = (WINDOW_WIDTH / 2) / Math.tan(FOV_ANGLE / 2);
+
+        // Projected wall height
+        var wallStripHeight = (TILE_SIZE / correctWallDisctance) * distanceProjectionPlane;
+        var alpha =  255/ correctWallDisctance;
+        var color = (ray.wasHitVertical ? 255 : 200);
+        fill(`rgba(${color}, ${color}, ${color}, ${alpha})`);
+        noStroke();
+        rect(
+            i * WALL_STRIP_WIDTH,
+            WINDOW_HEIGHT / 2 - wallStripHeight / 2,
+            WALL_STRIP_WIDTH,
+            wallStripHeight
+        );
+    }
+}
+
 function distanceBetweenPoints(x1, y1, x2, y2)
 {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
@@ -352,7 +378,10 @@ function update()
 
 function draw()
 {
+    clear("#212121");
     update();
+
+    render3DProjectedWalls();
 
     grid.render();
 
