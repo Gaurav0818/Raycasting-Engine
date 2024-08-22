@@ -1,6 +1,6 @@
 #include "Map.h"
 
-bool Map::HasWallAt(float x, float y)
+bool Map::HasWallAt(double x, double y)
 {
     if(x < 0 || x >= WINDOW_WIDTH || y < 0 || y >= WINDOW_HEIGHT)
     {
@@ -22,10 +22,10 @@ void Map::RenderMap(SDL_Renderer* renderer)
             int tileColor = grid[i][j] != 0 ? 255 : 0;
             SDL_SetRenderDrawColor(renderer, tileColor, tileColor, tileColor, 255);
             SDL_Rect mapTileRect = {
-                MINIMAP_SCALE_FACTOR * tileX,
-                MINIMAP_SCALE_FACTOR * tileY,
-                MINIMAP_SCALE_FACTOR * TILE_SIZE,
-                MINIMAP_SCALE_FACTOR * TILE_SIZE
+                static_cast<int>(MINIMAP_SCALE_FACTOR * tileX),
+                static_cast<int>(MINIMAP_SCALE_FACTOR * tileY),
+                static_cast<int>(MINIMAP_SCALE_FACTOR * TILE_SIZE),
+                static_cast<int>(MINIMAP_SCALE_FACTOR * TILE_SIZE)
             };
             SDL_RenderFillRect(renderer, &mapTileRect);
         }

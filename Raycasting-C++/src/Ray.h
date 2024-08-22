@@ -13,14 +13,14 @@ public:
     {}
     ~Ray() = default;
 
-    void CastRay(float angle, Player* player, Map* map);
+    void CastRay(double angle, Player* player, Map* map);
     void RenderRay(SDL_Renderer* renderer,Player* player);
     
 public:
-    float rayAngle;
-    float wallHitX;
-    float wallHitY;
-    float distance;
+    double rayAngle;
+    double wallHitX;
+    double wallHitY;
+    double distance;
     bool wasHitVertical;
     bool isRayFacingUp;
     bool isRayFacingDown;

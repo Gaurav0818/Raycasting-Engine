@@ -5,7 +5,7 @@
 class Map
 {
 public:
-    bool HasWallAt(float x, float y);
+    bool HasWallAt(double x, double y);
     void RenderMap(SDL_Renderer* renderer);
     
 public:

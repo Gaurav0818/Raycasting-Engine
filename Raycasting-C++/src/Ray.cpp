@@ -2,21 +2,21 @@
 
 #include <iostream>
 
-float DistanceBetweenPoints(float x1, float y1, float x2, float y2)
+double DistanceBetweenPoints(double x1, double y1, double x2, double y2)
 {
     return std::sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-float NormalizeAngle(float angle)
+double NormalizeAngle(double angle)
 {
-    angle = std::remainder(angle, static_cast<float>(TWO_PI));
+    angle = std::remainder(angle, static_cast<double>(TWO_PI));
     if (angle < 0) {
-        angle = static_cast<float>(TWO_PI) + angle;
+        angle = static_cast<double>(TWO_PI) + angle;
     }
     return angle;
 }
 
-void Ray::CastRay(float angle, Player* player, Map* map)
+void Ray::CastRay(double angle, Player* player, Map* map)
 {
     rayAngle = NormalizeAngle(angle);
 
@@ -26,16 +26,16 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     isRayFacingRight = rayAngle < 0.5 * PI || rayAngle > 1.5 * PI;
     isRayFacingLeft = !isRayFacingRight;
     
-    float xintercept, yintercept;
-    float xstep, ystep;
+    double xintercept, yintercept;
+    double xstep, ystep;
     
 
     ///////////////////////////////////////////
     // HORIZONTAL RAY-GRID INTERSECTION CODE
     ///////////////////////////////////////////
     bool foundHorzWallHit = false;
-    float horzWallHitX = 0;
-    float horzWallHitY = 0;
+    double horzWallHitX = 0;
+    double horzWallHitY = 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
     yintercept = floor(player->y / TILE_SIZE) * TILE_SIZE;
@@ -52,8 +52,8 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     xstep *= (isRayFacingLeft && xstep > 0) ? -1 : 1;
     xstep *= (isRayFacingRight && xstep < 0) ? -1 : 1;
 
-    float nextHorzTouchX = xintercept;
-    float nextHorzTouchY = yintercept;
+    double nextHorzTouchX = xintercept;
+    double nextHorzTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
     while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT) {
@@ -72,8 +72,8 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     // VERTICAL RAY-GRID INTERSECTION CODE
     ///////////////////////////////////////////
     bool foundVertWallHit = false;
-    float vertWallHitX = 0;
-    float vertWallHitY = 0;
+    double vertWallHitX = 0;
+    double vertWallHitY = 0;
 
     // Find the x-coordinate of the closest vertical grid intersection
     xintercept = floor(player->x / TILE_SIZE) * TILE_SIZE;
@@ -90,8 +90,8 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     ystep *= (isRayFacingUp && ystep > 0) ? -1 : 1;
     ystep *= (isRayFacingDown && ystep < 0) ? -1 : 1;
 
-    float nextVertTouchX = xintercept;
-    float nextVertTouchY = yintercept;
+    double nextVertTouchX = xintercept;
+    double nextVertTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
     while (nextVertTouchX >= 0 && nextVertTouchX <= WINDOW_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= WINDOW_HEIGHT) {
@@ -107,10 +107,10 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     }
 
     // Calculate both horizontal and vertical distances and choose the smallest value
-    float horzHitDistance = foundHorzWallHit
+    double horzHitDistance = foundHorzWallHit
         ? DistanceBetweenPoints(player->x, player->y, horzWallHitX, horzWallHitY)
         : INT_MAX;
-    float vertHitDistance = foundVertWallHit
+    double vertHitDistance = foundVertWallHit
         ? DistanceBetweenPoints(player->x, player->y, vertWallHitX, vertWallHitY)
         : INT_MAX;
 
@@ -119,7 +119,6 @@ void Ray::CastRay(float angle, Player* player, Map* map)
     wallHitX = wasHitVertical ? vertWallHitX : horzWallHitX;
     wallHitY = wasHitVertical ? vertWallHitY : horzWallHitY;
     distance = wasHitVertical ? vertHitDistance : horzHitDistance;
-    std::cout << "Vertical Hit: " << foundVertWallHit << " Horizontal Hit: " << foundHorzWallHit << " Distance: " << distance << std::endl;
 }
 
 void Ray::RenderRay(SDL_Renderer* renderer, Player* player)
@@ -127,8 +126,9 @@ void Ray::RenderRay(SDL_Renderer* renderer, Player* player)
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(
         renderer,
-        MINIMAP_SCALE_FACTOR * player->x,
-        MINIMAP_SCALE_FACTOR * player->y,
-        MINIMAP_SCALE_FACTOR * wallHitX,
-        MINIMAP_SCALE_FACTOR* wallHitY);
+        static_cast<int>(MINIMAP_SCALE_FACTOR * player->x),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * player->y),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * wallHitX),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * wallHitY)
+    );
 }

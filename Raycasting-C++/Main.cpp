@@ -15,9 +15,12 @@ SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 bool isGameRunning = false;
 
+Uint32* colorBuffer = NULL;
+SDL_Texture* colorBufferTexture = NULL;
+
 void CastAllRays()
 {
-	float rayAngle = player->rotationAngle - (FOV_ANGLE / 2);
+	double rayAngle = player->rotationAngle - (FOV_ANGLE / 2);
 	
 	for(int i = 0; i < NUM_RAYS; i++)
 	{
@@ -29,7 +32,7 @@ int InitializeWindow()
 {
 	if( SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		std::cout<<"SDL_Init Error: "<<SDL_GetError()<<std::endl;
+		std::cout<<"SDL_Init Error: "<<SDL_GetError()<< '\n';
 		return FALSE;
 	}
 	window = SDL_CreateWindow(
@@ -41,7 +44,7 @@ int InitializeWindow()
 
 	if(!window)
 	{
-		std::cout<<"SDL_CreateWindow Error: "<<SDL_GetError()<<std::endl;
+		std::cout<<"SDL_CreateWindow Error: "<<SDL_GetError()<< '\n';
 		return FALSE;
 	}
 
@@ -49,7 +52,7 @@ int InitializeWindow()
 
 	if(!renderer)
 	{
-		std::cout<<"SDL_CreateRenderer Error: "<<SDL_GetError()<<std::endl;
+		std::cout<<"SDL_CreateRenderer Error: "<<SDL_GetError()<< '\n';
 		return FALSE;
 	}
 
@@ -60,6 +63,12 @@ int InitializeWindow()
 
 void DestroyWindow()
 {
+	delete player;
+	delete map;
+	delete[] colorBuffer;
+	
+	SDL_DestroyTexture(colorBufferTexture);
+	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -71,6 +80,16 @@ void Setup()
 		0, 0, PI / 2,
 		100, 45 * (PI / 180));
 	map = new Map();
+
+	// allocate the memory for the color buffer
+	colorBuffer = new Uint32[WINDOW_WIDTH * WINDOW_HEIGHT];
+
+	colorBufferTexture = SDL_CreateTexture(
+		renderer,
+		SDL_PIXELFORMAT_ARGB8888,
+		SDL_TEXTUREACCESS_STREAMING,
+		WINDOW_WIDTH,
+		WINDOW_HEIGHT);
 	
 }
 
@@ -140,10 +159,55 @@ void Update()
 		SDL_Delay(timeToWait);
 	}
 	
-	float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
+	double deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0;
 	ticksLastFrame = SDL_GetTicks();
 	player->MovePlayer(deltaTime, map);
 	CastAllRays();
+}
+
+void Generate3DProjection()
+{
+	for(int i = 0; i < NUM_RAYS; i++)
+	{
+		double perpDistance = rays[i].distance * std::cos(rays[i].rayAngle - player->rotationAngle);
+		double distanceToProjectionPlane = (WINDOW_WIDTH / 2) / std::tan(FOV_ANGLE / 2);
+		double projectedWallHeight = (TILE_SIZE / perpDistance) * distanceToProjectionPlane;
+		
+		int wallStripHeight = static_cast<int>(projectedWallHeight);
+		
+		int wallTopPixel = (WINDOW_HEIGHT / 2) - (wallStripHeight / 2);
+		wallTopPixel = wallTopPixel < 0 ? 0 : wallTopPixel;
+		
+		int wallBottomPixel = (WINDOW_HEIGHT / 2) + (wallStripHeight / 2);
+		wallBottomPixel = wallBottomPixel > WINDOW_HEIGHT ? WINDOW_HEIGHT : wallBottomPixel;
+
+		for(int y = wallTopPixel; y < wallBottomPixel; y++)
+		{
+			colorBuffer[(WINDOW_WIDTH * y) + i] = rays[i].wasHitVertical ? 0xFFFFFFFF : 0xFFCCCCCC;
+		}
+	}
+}
+
+void ClearColorBuffer(Uint32 color)
+{
+	for(int x =0; x < WINDOW_WIDTH; x++)
+	{
+		for(int y = 0; y < WINDOW_HEIGHT; y++)
+		{
+			colorBuffer[(WINDOW_WIDTH * y) + x] = color;
+		}
+	}
+}
+
+void RenderColorBuffer()
+{
+	SDL_UpdateTexture(
+		colorBufferTexture,
+		NULL,
+		colorBuffer,
+		(int)((Uint32)WINDOW_WIDTH * sizeof(Uint32))
+		);
+	SDL_RenderCopy(renderer, colorBufferTexture, NULL, NULL);
 }
 
 void Render()
@@ -151,8 +215,12 @@ void Render()
 	SDL_SetRenderDrawColor(renderer,0,0,0,255);
 	SDL_RenderClear(renderer);
 
-	// TODO:
-	// render all game objects for the current frame
+	Generate3DProjection();
+
+	RenderColorBuffer();
+	ClearColorBuffer(0x00000000);
+	
+	// draw
 	map->RenderMap(renderer);
 	player->RenderPlayer(renderer);
 	for (auto ray : rays)
