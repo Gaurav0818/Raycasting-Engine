@@ -1,9 +1,15 @@
 #include <iostream>
 #include <SDL.h>
-#include "src/Constant.h"
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
+#include "src/Constant.h"
+#include "src/map.h"
+#include "src/player.h"
+
+Player* player = nullptr;
+Map* map = nullptr;
+
+SDL_Window* window = nullptr;
+SDL_Renderer* renderer = nullptr;
 bool isGameRunning = false;
 
 int InitializeWindow()
@@ -15,10 +21,10 @@ int InitializeWindow()
 	}
 	window = SDL_CreateWindow(
 		"SDL2 Window",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
 		WINDOW_WIDTH, WINDOW_HEIGHT,
-		SDL_WINDOW_BORDERLESS);
+		0);
 
 	if(!window)
 	{
@@ -46,19 +52,113 @@ void DestroyWindow()
 	SDL_Quit();
 }
 
+void Setup()
+{
+	player = new Player(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 5, 5,
+		0, 0, PI / 2,
+		100, 45 * (PI / 180));
+	map = new Map();
+	
+}
+
+void ProcessInput()
+{
+	SDL_Event event;
+	SDL_PollEvent(&event);
+
+	switch(event.type)
+	{
+		case SDL_QUIT:
+			isGameRunning = false;
+			break;
+		
+		case SDL_KEYDOWN:
+			if(event.key.keysym.sym == SDLK_ESCAPE)
+				isGameRunning = false;
+			if(event.key.keysym.sym == SDLK_RIGHT && event.key.keysym.sym == SDLK_LEFT)
+				player->turnDirection = 0;
+			else
+			{
+				if(event.key.keysym.sym == SDLK_RIGHT)
+					player->turnDirection = 1;
+				if(event.key.keysym.sym == SDLK_LEFT)
+					player->turnDirection = -1;
+			}
+			if(event.key.keysym.sym == SDLK_UP && event.key.keysym.sym == SDLK_DOWN)
+				player->walkDirection = 0;
+			else
+			{
+				if(event.key.keysym.sym == SDLK_UP)
+					player->walkDirection = 1;
+				if(event.key.keysym.sym == SDLK_DOWN)
+					player->walkDirection = -1;
+			}
+			break;
+		
+		case SDL_KEYUP:
+			if(event.key.keysym.sym == SDLK_UP)
+				player->walkDirection = 0;
+			if(event.key.keysym.sym == SDLK_DOWN)
+				player->walkDirection = 0;
+			if(event.key.keysym.sym == SDLK_RIGHT)
+				player->turnDirection = 0;
+			if(event.key.keysym.sym == SDLK_LEFT)
+				player->turnDirection = 0;
+			break;
+		
+		default:
+			break;
+	}
+}
+
+Uint32 ticksLastFrame = 0;
+
+void Update()
+{
+	// waste some time until we reach the target frame time
+	//while(!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + FRAME_TARGET_TIME));
+
+	// compute how long we have until the target frame time in milliseconds
+	int timeToWait = FRAME_TARGET_TIME - (SDL_GetTicks() - ticksLastFrame);
+
+	// only delay if we are too fast
+	if(timeToWait > 0 && timeToWait <= FRAME_TARGET_TIME)
+	{
+		SDL_Delay(timeToWait);
+	}
+	
+	float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
+	ticksLastFrame = SDL_GetTicks();
+	player->MovePlayer(deltaTime, map);
+	
+}
+
+void Render()
+{
+	SDL_SetRenderDrawColor(renderer,0,0,0,255);
+	SDL_RenderClear(renderer);
+
+	// TODO:
+	// render all game objects for the current frame
+	map->RenderMap(renderer);
+	player->RenderPlayer(renderer);
+	
+	SDL_RenderPresent(renderer);
+}
+
 int main(int argc, char* args[])
 {
 	// Initialize SDL
 	isGameRunning =  InitializeWindow();
 
-	//setup();
+	Setup();
 	
 	// Game loop
 	while(isGameRunning)
 	{
-		//processInput();
-		//update();
-		//render();
+		ProcessInput();
+		Update();
+		Render();
 	}
 
 	DestroyWindow();
