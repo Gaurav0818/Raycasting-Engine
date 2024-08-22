@@ -12,7 +12,7 @@ public:
     Player(float x, float y, float width, float height,
         int turnDirection, int walkDirection, float rotationAngle,
         float moveSpeed, float rotationSpeed)
-        : playerX(x), playerY(y), width(width), height(height),
+        : x(x), y(y), width(width), height(height),
         turnDirection(turnDirection), walkDirection(walkDirection),
         rotationAngle(rotationAngle), moveSpeed(moveSpeed), rotationSpeed(rotationSpeed)
     {}
@@ -26,8 +26,8 @@ public:
     void MovePlayer(float deltaTime, Map* map);
     
 public:
-    float playerX;
-    float playerY;
+    float x;
+    float y;
     float width;
     float height;
     int turnDirection; // -1 for left, +1 for right

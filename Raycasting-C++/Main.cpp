@@ -1,17 +1,30 @@
 #include <iostream>
+#include <list>
 #include <SDL.h>
 
 #include "src/Constant.h"
 #include "src/map.h"
 #include "src/player.h"
+#include "src/Ray.h"
 
 Player* player = nullptr;
 Map* map = nullptr;
+Ray rays[NUM_RAYS];
 
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 bool isGameRunning = false;
 
+void CastAllRays()
+{
+	float rayAngle = player->rotationAngle - (FOV_ANGLE / 2);
+	
+	for(int i = 0; i < NUM_RAYS; i++)
+	{
+		rays[i].CastRay(rayAngle, player, map);
+		rayAngle += FOV_ANGLE / NUM_RAYS;
+	}
+}
 int InitializeWindow()
 {
 	if( SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -130,7 +143,7 @@ void Update()
 	float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
 	ticksLastFrame = SDL_GetTicks();
 	player->MovePlayer(deltaTime, map);
-	
+	CastAllRays();
 }
 
 void Render()
@@ -142,6 +155,10 @@ void Render()
 	// render all game objects for the current frame
 	map->RenderMap(renderer);
 	player->RenderPlayer(renderer);
+	for (auto ray : rays)
+	{
+		ray.RenderRay(renderer, player);
+	}
 	
 	SDL_RenderPresent(renderer);
 }

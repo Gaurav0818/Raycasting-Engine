@@ -2,8 +2,8 @@
 
 Player::Player()
 {
-    playerX = 0;
-    playerY = 0;
+    x = 0;
+    y = 0;
     width = 0;
     height = 0;
     turnDirection = 0;
@@ -17,8 +17,8 @@ void Player::InitPlayer(float x, float y, float width, float height,
     int turnDirection, int walkDirection, float rotationAngle,
     float moveSpeed, float rotationSpeed)
 {
-    this->playerX = x;
-    this->playerY = y;
+    this->x = x;
+    this->y = y;
     this->width = width;
     this->height = height;
     this->turnDirection = turnDirection;
@@ -33,12 +33,19 @@ void Player::RenderPlayer(SDL_Renderer* renderer)
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_Rect playerRect =
         {
-            static_cast<int>(playerX) , static_cast<int>(playerY),
-            static_cast<int>(width), static_cast<int>(height)
+            MINIMAP_SCALE_FACTOR * static_cast<int>(x) ,
+            MINIMAP_SCALE_FACTOR * static_cast<int>(y),
+            MINIMAP_SCALE_FACTOR * static_cast<int>(width),
+            MINIMAP_SCALE_FACTOR * static_cast<int>(height)
         };
     SDL_RenderFillRect(renderer, &playerRect);
 
-    SDL_RenderDrawLine(renderer, playerX, playerY, playerX + std::cos(rotationAngle) * 40, playerY + std::sin(rotationAngle) * 40);
+    SDL_RenderDrawLine(renderer,
+        MINIMAP_SCALE_FACTOR * x,
+        MINIMAP_SCALE_FACTOR * y,
+        MINIMAP_SCALE_FACTOR * (x + std::cos(rotationAngle) * 40),
+        MINIMAP_SCALE_FACTOR * (y + std::sin(rotationAngle) * 40)
+        );
 }
 
 void Player::MovePlayer(float deltaTime, Map* map)
@@ -46,12 +53,12 @@ void Player::MovePlayer(float deltaTime, Map* map)
     rotationAngle += turnDirection * rotationSpeed * deltaTime;
     float moveStep = walkDirection * moveSpeed * deltaTime;
 
-    float newPlayerX = playerX + moveStep * std::cos(rotationAngle);
-    float newplayerY = playerY + moveStep * std::sin(rotationAngle);
+    float newPlayerX = x + moveStep * std::cos(rotationAngle);
+    float newplayerY = y + moveStep * std::sin(rotationAngle);
 
     if(!map->HasWallAt(newPlayerX, newplayerY))
     {
-        playerX = newPlayerX;
-        playerY = newplayerY;
+        x = newPlayerX;
+        y = newplayerY;
     }
 }
