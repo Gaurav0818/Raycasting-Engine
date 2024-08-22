@@ -1,0 +1,16 @@
+# Binaries
+**/bin/
+bin-int/
+Intermediates/
+
+
+# Visual Studio files and folder
+.vs/
+.vscode/
+
+# Rider Files 
+.idea/
+build
+cmake-build-debug
+Engine/x64
+x64
