@@ -16,15 +16,15 @@ double NormalizeAngle(double angle)
     return angle;
 }
 
-void Ray::CastRay(double angle, Player* player, Map* map)
+void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr<Map>& map)
 {
-    rayAngle = NormalizeAngle(angle);
+    m_rayAngle = NormalizeAngle(angle);
 
-    isRayFacingDown = rayAngle > 0 && rayAngle < PI;
-    isRayFacingUp = !isRayFacingDown;
+    m_isRayFacingDown = m_rayAngle > 0 && m_rayAngle < PI;
+    m_isRayFacingUp = !m_isRayFacingDown;
 
-    isRayFacingRight = rayAngle < 0.5 * PI || rayAngle > 1.5 * PI;
-    isRayFacingLeft = !isRayFacingRight;
+    m_isRayFacingRight = m_rayAngle < 0.5 * PI || m_rayAngle > 1.5 * PI;
+    m_isRayFacingLeft = !m_isRayFacingRight;
     
     double xintercept, yintercept;
     double xstep, ystep;
@@ -38,26 +38,26 @@ void Ray::CastRay(double angle, Player* player, Map* map)
     double horzWallHitY = 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
-    yintercept = floor(player->y / TILE_SIZE) * TILE_SIZE;
-    yintercept += isRayFacingDown ? TILE_SIZE : 0;
+    yintercept = floor(player->m_playerY / TILE_SIZE) * TILE_SIZE;
+    yintercept += m_isRayFacingDown ? TILE_SIZE : 0;
 
     // Find the x-coordinate of the closest horizontal grid intersection
-    xintercept = player->x + (yintercept - player->y) / tan(rayAngle);
+    xintercept = player->m_playerX + (yintercept - player->m_playerY) / tan(m_rayAngle);
 
     // Calculate the increment xstep and ystep
     ystep = TILE_SIZE;
-    ystep *= isRayFacingUp ? -1 : 1;
+    ystep *= m_isRayFacingUp ? -1 : 1;
 
-    xstep = TILE_SIZE / tan(rayAngle);
-    xstep *= (isRayFacingLeft && xstep > 0) ? -1 : 1;
-    xstep *= (isRayFacingRight && xstep < 0) ? -1 : 1;
+    xstep = TILE_SIZE / tan(m_rayAngle);
+    xstep *= (m_isRayFacingLeft && xstep > 0) ? -1 : 1;
+    xstep *= (m_isRayFacingRight && xstep < 0) ? -1 : 1;
 
     double nextHorzTouchX = xintercept;
     double nextHorzTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
     while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT) {
-        if (map->HasWallAt(nextHorzTouchX, nextHorzTouchY - (isRayFacingUp ? 1 : 0))) {
+        if (map->HasWallAt(nextHorzTouchX, nextHorzTouchY - (m_isRayFacingUp ? 1 : 0))) {
             foundHorzWallHit = true;
             horzWallHitX = nextHorzTouchX;
             horzWallHitY = nextHorzTouchY;
@@ -76,26 +76,26 @@ void Ray::CastRay(double angle, Player* player, Map* map)
     double vertWallHitY = 0;
 
     // Find the x-coordinate of the closest vertical grid intersection
-    xintercept = floor(player->x / TILE_SIZE) * TILE_SIZE;
-    xintercept += isRayFacingRight ? TILE_SIZE : 0;
+    xintercept = floor(player->m_playerX / TILE_SIZE) * TILE_SIZE;
+    xintercept += m_isRayFacingRight ? TILE_SIZE : 0;
 
     // Find the y-coordinate of the closest vertical grid intersection
-    yintercept = player->y + (xintercept - player->x) * tan(rayAngle);
+    yintercept = player->m_playerY + (xintercept - player->m_playerX) * tan(m_rayAngle);
 
     // Calculate the increment xstep and ystep
     xstep = TILE_SIZE;
-    xstep *= isRayFacingLeft ? -1 : 1;
+    xstep *= m_isRayFacingLeft ? -1 : 1;
 
-    ystep = TILE_SIZE * tan(rayAngle);
-    ystep *= (isRayFacingUp && ystep > 0) ? -1 : 1;
-    ystep *= (isRayFacingDown && ystep < 0) ? -1 : 1;
+    ystep = TILE_SIZE * tan(m_rayAngle);
+    ystep *= (m_isRayFacingUp && ystep > 0) ? -1 : 1;
+    ystep *= (m_isRayFacingDown && ystep < 0) ? -1 : 1;
 
     double nextVertTouchX = xintercept;
     double nextVertTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
     while (nextVertTouchX >= 0 && nextVertTouchX <= WINDOW_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= WINDOW_HEIGHT) {
-        if (map->HasWallAt(nextVertTouchX - (isRayFacingLeft ? 1 : 0), nextVertTouchY)) {
+        if (map->HasWallAt(nextVertTouchX - (m_isRayFacingLeft ? 1 : 0), nextVertTouchY)) {
             foundVertWallHit = true;
             vertWallHitX = nextVertTouchX;
             vertWallHitY = nextVertTouchY;
@@ -108,27 +108,27 @@ void Ray::CastRay(double angle, Player* player, Map* map)
 
     // Calculate both horizontal and vertical distances and choose the smallest value
     double horzHitDistance = foundHorzWallHit
-        ? DistanceBetweenPoints(player->x, player->y, horzWallHitX, horzWallHitY)
+        ? DistanceBetweenPoints(player->m_playerX, player->m_playerY, horzWallHitX, horzWallHitY)
         : INT_MAX;
     double vertHitDistance = foundVertWallHit
-        ? DistanceBetweenPoints(player->x, player->y, vertWallHitX, vertWallHitY)
+        ? DistanceBetweenPoints(player->m_playerX, player->m_playerY, vertWallHitX, vertWallHitY)
         : INT_MAX;
 
-    wasHitVertical = (vertHitDistance < horzHitDistance);
+    m_wasHitVertical = (vertHitDistance < horzHitDistance);
     // only store the smallest of the distances
-    wallHitX = wasHitVertical ? vertWallHitX : horzWallHitX;
-    wallHitY = wasHitVertical ? vertWallHitY : horzWallHitY;
-    distance = wasHitVertical ? vertHitDistance : horzHitDistance;
+    m_wallHitX = m_wasHitVertical ? vertWallHitX : horzWallHitX;
+    m_wallHitY = m_wasHitVertical ? vertWallHitY : horzWallHitY;
+    m_distance = m_wasHitVertical ? vertHitDistance : horzHitDistance;
 }
 
-void Ray::RenderRay(SDL_Renderer* renderer, Player* player)
+void Ray::RenderRay(SDL_Renderer* renderer, std::unique_ptr<Player>& player)
 {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawLine(
         renderer,
-        static_cast<int>(MINIMAP_SCALE_FACTOR * player->x),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * player->y),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * wallHitX),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * wallHitY)
+        static_cast<int>(MINIMAP_SCALE_FACTOR * player->m_playerX),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * player->m_playerY),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * m_wallHitX),
+        static_cast<int>(MINIMAP_SCALE_FACTOR * m_wallHitY)
     );
 }

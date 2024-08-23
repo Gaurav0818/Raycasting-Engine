@@ -8,7 +8,7 @@ bool Map::HasWallAt(double x, double y)
     }
     int mapGridIndexX = floor(x / TILE_SIZE);
     int mapGridIndexY = floor(y / TILE_SIZE);
-    return grid[mapGridIndexY][mapGridIndexX] != 0;
+    return m_grid[mapGridIndexY][mapGridIndexX] != 0;
 }
 
 void Map::RenderMap(SDL_Renderer* renderer)
@@ -19,7 +19,7 @@ void Map::RenderMap(SDL_Renderer* renderer)
         {
             int tileX = j * TILE_SIZE;
             int tileY = i * TILE_SIZE;
-            int tileColor = grid[i][j] != 0 ? 255 : 0;
+            int tileColor = m_grid[i][j] != 0 ? 255 : 0;
             SDL_SetRenderDrawColor(renderer, tileColor, tileColor, tileColor, 255);
             SDL_Rect mapTileRect = {
                 static_cast<int>(MINIMAP_SCALE_FACTOR * tileX),

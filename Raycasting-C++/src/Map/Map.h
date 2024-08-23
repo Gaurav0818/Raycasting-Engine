@@ -1,6 +1,7 @@
 #pragma once
-#include "Constant.h"
 #include <SDL.h>
+
+#include "../Constant.h"
 
 class Map
 {
@@ -9,7 +10,7 @@ public:
     void RenderMap(SDL_Renderer* renderer);
     
 public:
-    const int grid[MAP_NUM_ROWS][MAP_NUM_COLS] = {
+    const int m_grid[MAP_NUM_ROWS][MAP_NUM_COLS] = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ,1, 1, 1, 1, 1, 1, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
