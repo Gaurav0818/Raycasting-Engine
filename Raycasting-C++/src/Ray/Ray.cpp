@@ -130,15 +130,3 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     m_distance = m_wasHitVertical ? vertHitDistance : horzHitDistance;
     m_wallHitContent = m_wasHitVertical ? vertWallContent : horzWallContent;
 }
-
-void Ray::RenderRay(SDL_Renderer* renderer, std::unique_ptr<Player>& player)
-{
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(
-        renderer,
-        static_cast<int>(MINIMAP_SCALE_FACTOR * player->m_playerX),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * player->m_playerY),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * m_wallHitX),
-        static_cast<int>(MINIMAP_SCALE_FACTOR * m_wallHitY)
-    );
-}

@@ -34,11 +34,13 @@ private:
     void FixedUpdate();
     void Render();
     void RenderMap();
+    void RenderRays();
+    
     void DrawPixel(int x, int y, uint32_t color) const;
     void DrawRect(int x, int y, int width, int height, uint32_t color) const;
+    void DrawLine(double x0, double y0, double x1, double y1, uint32_t color) const;
 
     void CastAllRays();
-
     void RenderWallProjection();
     void ClearColorBuffer(uint32_t color);
     void RenderColorBuffer();

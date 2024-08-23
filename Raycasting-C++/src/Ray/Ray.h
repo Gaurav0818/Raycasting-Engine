@@ -14,7 +14,6 @@ public:
     ~Ray() = default;
 
     void CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr<Map>& map);
-    void RenderRay(SDL_Renderer* renderer, std::unique_ptr<Player>& player);
     
 public:
     double m_rayAngle;

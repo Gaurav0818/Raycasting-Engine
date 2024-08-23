@@ -194,14 +194,11 @@ void Game::Render()
 
     RenderWallProjection();
     RenderMap();
+    RenderRays();
     RenderColorBuffer();
     ClearColorBuffer(0x00000000);
 	
-    // draw
-    for (auto ray : m_rays)
-    {
-        ray.RenderRay(m_renderer, m_player);
-    }
+
     m_player->RenderPlayer(m_renderer);
 
     SDL_RenderPresent(m_renderer);
@@ -223,6 +220,19 @@ void Game::RenderMap()
                     static_cast<int>(MINIMAP_SCALE_FACTOR * TILE_SIZE),
                     encodeRGBA(tileColor, tileColor, tileColor, 255));
         }
+    }
+}
+
+void Game::RenderRays()
+{
+    for (auto ray : m_rays)
+    {
+        DrawLine(
+            static_cast<int>(MINIMAP_SCALE_FACTOR * m_player->m_playerX),
+            static_cast<int>(MINIMAP_SCALE_FACTOR * m_player->m_playerY),
+            static_cast<int>(MINIMAP_SCALE_FACTOR * ray.m_wallHitX),
+            static_cast<int>(MINIMAP_SCALE_FACTOR * ray.m_wallHitY),
+            encodeRGBA(255,0,0,255));
     }
 }
 
@@ -248,6 +258,27 @@ void Game::DrawRect(int x, int y, int width, int height, uint32_t color) const
         {
             DrawPixel(i, j, color);
         }
+    }
+}
+
+void Game::DrawLine(double x0, double y0, double x1, double y1, uint32_t color) const
+{
+    double dx = x1 - x0;
+    double dy = y1 - y0;
+    
+    double longestSideLength = std::max(abs(dx), abs(dy));
+    
+    double xIncrement = dx / longestSideLength;
+    double yIncrement = dy / longestSideLength;
+    
+    double X = x0;
+    double Y = y0;
+    
+    for(int i = 0; i <= longestSideLength; i++)
+    {
+        DrawPixel(round(X), round(Y), color);
+        X += xIncrement;
+        Y += yIncrement;
     }
 }
 
