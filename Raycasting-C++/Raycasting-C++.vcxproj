@@ -155,7 +155,7 @@
     <Folder Include="src\Map\" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="src\Main.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
@@ -241,6 +241,7 @@
     <ClInclude Include="src\Map\Map.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Ray\Ray.h" />
+    <ClInclude Include="src\Texture\textures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

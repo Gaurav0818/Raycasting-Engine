@@ -26,4 +26,5 @@ public:
     bool m_isRayFacingDown;
     bool m_isRayFacingLeft;
     bool m_isRayFacingRight;
+    int m_wallHitContent;
 };

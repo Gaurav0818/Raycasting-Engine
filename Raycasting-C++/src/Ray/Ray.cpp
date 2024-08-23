@@ -36,6 +36,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     bool foundHorzWallHit = false;
     double horzWallHitX = 0;
     double horzWallHitY = 0;
+    int horzWallContent = 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
     yintercept = floor(player->m_playerY / TILE_SIZE) * TILE_SIZE;
@@ -56,11 +57,15 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     double nextHorzTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
-    while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT) {
-        if (map->HasWallAt(nextHorzTouchX, nextHorzTouchY - (m_isRayFacingUp ? 1 : 0))) {
+    while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT)
+    {
+        float xToCheck = nextHorzTouchX;
+        float yToCheck = nextHorzTouchY + (m_isRayFacingUp ? -1 : 0);
+        if (map->HasWallAt(xToCheck, yToCheck)) {
             foundHorzWallHit = true;
             horzWallHitX = nextHorzTouchX;
             horzWallHitY = nextHorzTouchY;
+            horzWallContent = map->m_grid[static_cast<int>(yToCheck / TILE_SIZE)][static_cast<int>(xToCheck / TILE_SIZE)];
             break;
         } else {
             nextHorzTouchX += xstep;
@@ -74,6 +79,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     bool foundVertWallHit = false;
     double vertWallHitX = 0;
     double vertWallHitY = 0;
+    int vertWallContent = 0;
 
     // Find the x-coordinate of the closest vertical grid intersection
     xintercept = floor(player->m_playerX / TILE_SIZE) * TILE_SIZE;
@@ -95,10 +101,13 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
 
     // Increment xstep and ystep until we find a wall
     while (nextVertTouchX >= 0 && nextVertTouchX <= WINDOW_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= WINDOW_HEIGHT) {
-        if (map->HasWallAt(nextVertTouchX - (m_isRayFacingLeft ? 1 : 0), nextVertTouchY)) {
+        float xToCheck = nextVertTouchX + (m_isRayFacingLeft ? -1 : 0);
+        float yToCheck = nextVertTouchY;
+        if (map->HasWallAt(xToCheck, yToCheck)) {
             foundVertWallHit = true;
             vertWallHitX = nextVertTouchX;
             vertWallHitY = nextVertTouchY;
+            vertWallContent = map->m_grid[static_cast<int>(yToCheck / TILE_SIZE)][static_cast<int>(xToCheck / TILE_SIZE)];
             break;
         } else {
             nextVertTouchX += xstep;
@@ -119,6 +128,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     m_wallHitX = m_wasHitVertical ? vertWallHitX : horzWallHitX;
     m_wallHitY = m_wasHitVertical ? vertWallHitY : horzWallHitY;
     m_distance = m_wasHitVertical ? vertHitDistance : horzHitDistance;
+    m_wallHitContent = m_wasHitVertical ? vertWallContent : horzWallContent;
 }
 
 void Ray::RenderRay(SDL_Renderer* renderer, std::unique_ptr<Player>& player)

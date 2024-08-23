@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <stdint.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
 
@@ -9,6 +10,8 @@
 #include "../Player/Player.h"
 #include "../Map/Map.h"
 #include "../Ray/Ray.h"
+
+#include "../Texture/textures.h"
 
 class Game
 {
@@ -34,9 +37,6 @@ private:
     void ClearColorBuffer(uint32_t color);
     void RenderColorBuffer();
 
-public:
-    //double GetDeltaTime() { return m_deltaTime; }
-
 private:
     SDL_Window* m_window = nullptr;
     SDL_Renderer* m_renderer = nullptr;
@@ -46,10 +46,10 @@ private:
     Ray m_rays[NUM_RAYS];
     
     bool m_isGameRunning = false;
-    Uint32 m_ticksLastFrame = 0;
-    Uint32 m_ticksLastFixedFrame = 0;
+    uint32_t m_ticksLastFrame = 0;
     double m_deltaTime;
 
-    Uint32* m_colorBuffer = nullptr;
+    uint32_t* m_colorBuffer = nullptr;
     SDL_Texture* m_colorBufferTexture = nullptr;
+    uint32_t* m_textures[NUM_TEXTURES];
 };

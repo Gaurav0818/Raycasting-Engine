@@ -89,10 +89,20 @@ void Game::Setup()
         SDL_TEXTUREACCESS_STREAMING,
         WINDOW_WIDTH,
         WINDOW_HEIGHT);
+
+    m_textures[0] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(REDBRICK_TEXTURE));
+    m_textures[1] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(PURPLESTONE_TEXTURE));
+    m_textures[2] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(MOSSYSTONE_TEXTURE));
+    m_textures[3] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(GRAYSTONE_TEXTURE));
+    m_textures[4] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(COLORSTONE_TEXTURE));
+    m_textures[5] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(BLUESTONE_TEXTURE));
+    m_textures[6] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(WOOD_TEXTURE));
+    m_textures[7] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(EAGLE_TEXTURE));
 }
 
 void Game::LoadLevel()
 {
+    
 }
 
 void Game::ProcessInput()
@@ -203,9 +213,9 @@ void Game::CastAllRays()
 
 void Game::Generate3DProjection()
 {
-    for(int i = 0; i < NUM_RAYS; i++)
+    for(int x = 0; x < NUM_RAYS; x++)
     {
-        double perpDistance = m_rays[i].m_distance * std::cos(m_rays[i].m_rayAngle - m_player->m_rotationAngle);
+        double perpDistance = m_rays[x].m_distance * std::cos(m_rays[x].m_rayAngle - m_player->m_rotationAngle);
         double distanceToProjectionPlane = (WINDOW_WIDTH / 2) / std::tan(FOV_ANGLE / 2);
         double projectedWallHeight = (TILE_SIZE / perpDistance) * distanceToProjectionPlane;
 		
@@ -218,16 +228,30 @@ void Game::Generate3DProjection()
         wallBottomPixel = wallBottomPixel > WINDOW_HEIGHT ? WINDOW_HEIGHT : wallBottomPixel;
 
         // draw the wall
+        int textureOffsetX;
+        if(m_rays[x].m_wasHitVertical)
+            textureOffsetX = static_cast<int>(m_rays[x].m_wallHitY) % TEXTURE_WIDTH;
+        else
+            textureOffsetX = static_cast<int>(m_rays[x].m_wallHitX) % TEXTURE_WIDTH;
+
+        // get the correct texture id number from the map
+        int texNum = m_rays[x].m_wallHitContent - 1;
         for(int y = wallTopPixel; y < wallBottomPixel; y++)
-            m_colorBuffer[(WINDOW_WIDTH * y) + i] = m_rays[i].m_wasHitVertical ? 0xFFa56e3b : 0xFF9e5b3c;
+        {
+            int distanceFromTop = y + (wallStripHeight / 2) - (WINDOW_HEIGHT / 2);
+            int textureOffsetY = distanceFromTop * TEXTURE_HEIGHT / wallStripHeight;
+    
+            uint32_t texelColor = m_textures[texNum][(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+            m_colorBuffer[(WINDOW_WIDTH * y) + x] = texelColor;
+        }
 		
         // draw the ceiling
         for(int y= 0; y < wallTopPixel; y++)
-            m_colorBuffer[(WINDOW_WIDTH * y) + i] = 0xFF0000AA;
+            m_colorBuffer[(WINDOW_WIDTH * y) + x] = 0xFF0000AA;
 		
         // draw the floor
         for(int y = wallBottomPixel; y < WINDOW_HEIGHT; y++)
-            m_colorBuffer[(WINDOW_WIDTH * y) + i] = 0xFF008800;
+            m_colorBuffer[(WINDOW_WIDTH * y) + x] = 0xFF008800;
 		
     }
 }
@@ -249,7 +273,7 @@ void Game::RenderColorBuffer()
         m_colorBufferTexture,
         NULL,
         m_colorBuffer,
-        (int)((Uint32)WINDOW_WIDTH * sizeof(Uint32))
+        (int)((uint32_t)WINDOW_WIDTH * sizeof(uint32_t))
         );
     SDL_RenderCopy(m_renderer, m_colorBufferTexture, NULL, NULL);
 }
