@@ -1,5 +1,6 @@
 #pragma once
-#include <math.h>
+#include <cmath>
+#include <cstdint>
 
 #define PI 3.14159265
 #define TWO_PI 6.28318530

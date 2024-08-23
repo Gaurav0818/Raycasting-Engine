@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL_render.h>
-#include <cmath>
 #include <memory>
+#include <cmath>
 
 #include "../Map/Map.h"
 

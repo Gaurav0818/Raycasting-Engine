@@ -245,7 +245,7 @@ void Game::CastAllRays()
     }
 }
 
-void Game::DrawPixel(int x, int y, uint32_t color) const
+void Game::DrawPixel(int x, int y, uint32_t& color) const
 {
     m_colorBuffer[(m_winWidth * y) + x] = color;
 }
@@ -280,6 +280,16 @@ void Game::DrawLine(double x0, double y0, double x1, double y1, uint32_t color) 
         X += xIncrement;
         Y += yIncrement;
     }
+}
+
+void ChangeColorIntensity(uint32_t& color, float intensity)
+{
+    uint8_t a = (color >> 24) & 0xFF;
+    uint8_t r = ((color >> 16) & 0xFF) * intensity;
+    uint8_t g = ((color >> 8) & 0xFF) * intensity;
+    uint8_t b = (color & 0xFF) * intensity;
+    
+    color = (a << 24) | (r << 16) | (g << 8) | b;
 }
 
 void Game::RenderWallProjection()
@@ -317,17 +327,29 @@ void Game::RenderWallProjection()
             int distanceFromTop = y + (wallStripHeight / 2) - (m_winHeight / 2);
             int textureOffsetY = distanceFromTop * textureHeight / wallStripHeight;
     
-            uint32_t texelColor = m_textureManager->wallTextures[texNum].texture_buffer[(textureWidth * textureOffsetY) + textureOffsetX];
+            uint32_t texelColor = m_textureManager->wallTextures[texNum].texture_buffer
+                                    [(textureWidth * textureOffsetY) + textureOffsetX];
+
+            if( m_rays[x].m_wasHitVertical)
+                ChangeColorIntensity(texelColor, 0.7);
+            
             DrawPixel(x,y,texelColor);
         }
 		
         // draw the ceiling
         for(int y= 0; y < wallTopPixel; y++)
-            DrawPixel(x, y,encodeRGBA(0, 0, 150, 255)); 
+        {
+            uint32_t color = encodeRGBA(0, 0, 150, 255);
+            DrawPixel(x, y,color); 
+        }
 		
         // draw the floor
         for(int y = wallBottomPixel; y < m_winHeight; y++)
-            DrawPixel(x, y, encodeRGBA(0, 100, 0, 255)); 
+        {
+            uint32_t color = encodeRGBA(0, 100, 0, 255);
+            DrawPixel(x, y, color); 
+        }
+
     }
 }
 

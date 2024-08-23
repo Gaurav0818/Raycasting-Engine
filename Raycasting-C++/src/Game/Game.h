@@ -1,8 +1,7 @@
 #pragma once
 #include <memory>
 #include <stdint.h>
-#include <SDL_render.h>
-#include <SDL_video.h>
+#include <SDL.h>
 #include <chrono>
 
 #include "../Logger/Logger.h"
@@ -24,9 +23,7 @@ public:
     void Run();
     void Destroy();
 
-    
 private:
-    
     void Setup();
     void LoadLevel();
     void ProcessInput();
@@ -36,7 +33,7 @@ private:
     void RenderMap();
     void RenderRays();
     
-    void DrawPixel(int x, int y, uint32_t color) const;
+    void DrawPixel(int x, int y, uint32_t& color) const;
     void DrawRect(int x, int y, int width, int height, uint32_t color) const;
     void DrawLine(double x0, double y0, double x1, double y1, uint32_t color) const;
 
