@@ -5,7 +5,7 @@
 #include <SDL_video.h>
 
 #include "../Logger/Logger.h"
-#include "../Constant.h"
+#include "../Core.h"
 
 #include "../Player/Player.h"
 #include "../Map/Map.h"
@@ -52,4 +52,6 @@ private:
     uint32_t* m_colorBuffer = nullptr;
     SDL_Texture* m_colorBufferTexture = nullptr;
     uint32_t* m_textures[NUM_TEXTURES];
+
+    TextureManager* m_textureManager = nullptr;
 };

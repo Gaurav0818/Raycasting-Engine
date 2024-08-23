@@ -25,3 +25,7 @@
 
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
+
+inline uint32_t encodeRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    return (a << 24) | (b << 16) | (g << 8) | r;
+}

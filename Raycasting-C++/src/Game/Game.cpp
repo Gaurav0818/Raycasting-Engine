@@ -63,8 +63,11 @@ void Game::Run()
 
 void Game::Destroy()
 {
+    m_textureManager->freeWallTexture();
+    
+    delete m_textureManager;
     delete[] m_colorBuffer;
-	
+    
     SDL_DestroyTexture(m_colorBufferTexture);
 	
     SDL_DestroyRenderer(m_renderer);
@@ -85,19 +88,13 @@ void Game::Setup()
 
     m_colorBufferTexture = SDL_CreateTexture(
         m_renderer,
-        SDL_PIXELFORMAT_ARGB8888,
+        SDL_PIXELFORMAT_RGBA32,
         SDL_TEXTUREACCESS_STREAMING,
         WINDOW_WIDTH,
         WINDOW_HEIGHT);
 
-    m_textures[0] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(REDBRICK_TEXTURE));
-    m_textures[1] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(PURPLESTONE_TEXTURE));
-    m_textures[2] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(MOSSYSTONE_TEXTURE));
-    m_textures[3] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(GRAYSTONE_TEXTURE));
-    m_textures[4] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(COLORSTONE_TEXTURE));
-    m_textures[5] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(BLUESTONE_TEXTURE));
-    m_textures[6] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(WOOD_TEXTURE));
-    m_textures[7] = reinterpret_cast<Uint32*>(const_cast<uint8_t*>(EAGLE_TEXTURE));
+    m_textureManager = new TextureManager();
+    m_textureManager->loadWallTexture();
 }
 
 void Game::LoadLevel()
@@ -241,18 +238,17 @@ void Game::Generate3DProjection()
             int distanceFromTop = y + (wallStripHeight / 2) - (WINDOW_HEIGHT / 2);
             int textureOffsetY = distanceFromTop * TEXTURE_HEIGHT / wallStripHeight;
     
-            uint32_t texelColor = m_textures[texNum][(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+            uint32_t texelColor = m_textureManager->wallTextures[texNum].texture_buffer[(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
             m_colorBuffer[(WINDOW_WIDTH * y) + x] = texelColor;
         }
 		
         // draw the ceiling
         for(int y= 0; y < wallTopPixel; y++)
-            m_colorBuffer[(WINDOW_WIDTH * y) + x] = 0xFF0000AA;
+            m_colorBuffer[(WINDOW_WIDTH * y) + x] = encodeRGBA(0, 0, 150, 255); 
 		
         // draw the floor
         for(int y = wallBottomPixel; y < WINDOW_HEIGHT; y++)
-            m_colorBuffer[(WINDOW_WIDTH * y) + x] = 0xFF008800;
-		
+            m_colorBuffer[(WINDOW_WIDTH * y) + x] = encodeRGBA(0, 100, 0, 255); 
     }
 }
 

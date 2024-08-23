@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL.h>
 
-#include "../Constant.h"
+#include "../Core.h"
 
 class Map
 {
