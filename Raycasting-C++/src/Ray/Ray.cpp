@@ -46,7 +46,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     xintercept = player->m_playerX + (yintercept - player->m_playerY) / tan(m_rayAngle);
 
     // Calculate the increment xstep and ystep
-    ystep = TILE_SIZE;
+    ystep = TILE_SIZE;  
     ystep *= m_isRayFacingUp ? -1 : 1;
 
     xstep = TILE_SIZE / tan(m_rayAngle);
@@ -57,7 +57,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     double nextHorzTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
-    while (nextHorzTouchX >= 0 && nextHorzTouchX <= WINDOW_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= WINDOW_HEIGHT)
+    while (nextHorzTouchX >= 0 && nextHorzTouchX <= (MAP_NUM_COLS * TILE_SIZE) && nextHorzTouchY >= 0 && nextHorzTouchY <= (MAP_NUM_ROWS * TILE_SIZE))
     {
         float xToCheck = nextHorzTouchX;
         float yToCheck = nextHorzTouchY + (m_isRayFacingUp ? -1 : 0);
@@ -100,7 +100,7 @@ void Ray::CastRay(double angle, std::unique_ptr<Player>& player, std::unique_ptr
     double nextVertTouchY = yintercept;
 
     // Increment xstep and ystep until we find a wall
-    while (nextVertTouchX >= 0 && nextVertTouchX <= WINDOW_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= WINDOW_HEIGHT) {
+    while (nextVertTouchX >= 0 && nextVertTouchX <= (MAP_NUM_COLS * TILE_SIZE) && nextVertTouchY >= 0 && nextVertTouchY <= (MAP_NUM_ROWS * TILE_SIZE)) {
         float xToCheck = nextVertTouchX + (m_isRayFacingLeft ? -1 : 0);
         float yToCheck = nextVertTouchY;
         if (map->HasWallAt(xToCheck, yToCheck)) {

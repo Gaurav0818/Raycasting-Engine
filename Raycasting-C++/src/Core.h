@@ -1,7 +1,5 @@
 #pragma once
-
-#define FALSE 0
-#define TRUE 1
+#include <math.h>
 
 #define PI 3.14159265
 #define TWO_PI 6.28318530
@@ -11,20 +9,13 @@
 #define MAP_NUM_COLS 20
 #define NUM_TEXTURES 8
 
-#define WINDOW_WIDTH (MAP_NUM_COLS * TILE_SIZE)
-#define WINDOW_HEIGHT (MAP_NUM_ROWS * TILE_SIZE)
-
-#define TEXTURE_WIDTH 64
-#define TEXTURE_HEIGHT 64
-
 #define FOV_ANGLE (60 * (PI / 180))
-
-#define NUM_RAYS WINDOW_WIDTH
 
 #define MINIMAP_SCALE_FACTOR 0.2
 
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
+#define FIXED_UPDATE_INTERVAL 0.01667 // 1 / 60
 
 inline uint32_t encodeRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     return (a << 24) | (b << 16) | (g << 8) | r;

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
+#include <chrono>
 
 #include "../Logger/Logger.h"
 #include "../Core.h"
@@ -22,6 +23,7 @@ public:
     void Initialize();
     void Run();
     void Destroy();
+
     
 private:
     
@@ -31,9 +33,13 @@ private:
     void Update();
     void FixedUpdate();
     void Render();
+    void RenderMap();
+    void DrawPixel(int x, int y, uint32_t color) const;
+    void DrawRect(int x, int y, int width, int height, uint32_t color) const;
 
     void CastAllRays();
-    void Generate3DProjection();
+
+    void RenderWallProjection();
     void ClearColorBuffer(uint32_t color);
     void RenderColorBuffer();
 
@@ -43,11 +49,15 @@ private:
     
     std::unique_ptr<Player> m_player = nullptr;
     std::unique_ptr<Map> m_map = nullptr;
-    Ray m_rays[NUM_RAYS];
+    std::vector<Ray> m_rays;
+
+    int m_winWidth;
+    int m_winHeight;
+    int m_NumOfRays;
+    double m_deltaTime;
+    double m_fixedDeltaTime = FIXED_UPDATE_INTERVAL;
     
     bool m_isGameRunning = false;
-    uint32_t m_ticksLastFrame = 0;
-    double m_deltaTime;
 
     uint32_t* m_colorBuffer = nullptr;
     SDL_Texture* m_colorBufferTexture = nullptr;
